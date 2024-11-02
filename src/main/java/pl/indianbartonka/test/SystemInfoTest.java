@@ -1,13 +1,14 @@
 package pl.indianbartonka.test;
 
-import com.sun.management.OperatingSystemMXBean;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
+import java.util.List;
 import pl.indianbartonka.util.MathUtil;
+import pl.indianbartonka.util.ThreadUtil;
 import pl.indianbartonka.util.logger.Logger;
 import pl.indianbartonka.util.logger.LoggerConfiguration;
+import pl.indianbartonka.util.system.Disk;
 import pl.indianbartonka.util.system.SystemUtil;
 
 public final class SystemInfoTest {
@@ -32,17 +33,47 @@ public final class SystemInfoTest {
         LOGGER.print();
 
         LOGGER.alert("&4Pamięć komputera");
-        LOGGER.info("&aDostępne: &b" + MathUtil.formatBytesDynamic(SystemUtil.availableDiskSpace(), false));
-        LOGGER.info("&aUżyte: &b" + MathUtil.formatBytesDynamic(SystemUtil.usedDiskSpace(), false));
-        LOGGER.info("&aMaksymalne: &b" + MathUtil.formatBytesDynamic(SystemUtil.maxDiskSpace(), false));
+        final List<Disk> disks = SystemUtil.getAvailableDisk();
+
+        LOGGER.info("&aDostępne dyski: &d" + disks.size());
+
+        for (final Disk disk : disks) {
+            final File diskFile = disk.diskFile();
+            LOGGER.print();
+            LOGGER.info("&aNazwa: &3" + disk.name());
+            LOGGER.info("&aŚcieżka: &3" + diskFile.getAbsolutePath());
+            LOGGER.info("&aTyp dysku:&b " + disk.type());
+            LOGGER.info("&aRozmiar bloku:&b " + disk.blockSize());
+            LOGGER.info("&aTylko do odczytu:&b " + disk.readOnly());
+
+            LOGGER.info("&aCałkowita pamięć:&b " + MathUtil.formatBytesDynamic(SystemUtil.getMaxDiskSpace(diskFile), false));
+            LOGGER.info("&aUżyta pamięć:&b " + MathUtil.formatBytesDynamic(SystemUtil.getUsedDiskSpace(diskFile), false));
+            LOGGER.info("&aWolna pamięć:&b " + MathUtil.formatBytesDynamic(SystemUtil.getFreeDiskSpace(diskFile), false));
+        }
 
         LOGGER.print();
         LOGGER.print();
 
         LOGGER.alert("&4Pamięć Ram");
-        LOGGER.info("&aWolne: &b" + MathUtil.formatBytesDynamic(getFreeRam(), false));
-        LOGGER.info("&aUżyte: &b" + MathUtil.formatBytesDynamic(getUsedRam(), false));
-        LOGGER.info("&aDostępne: &b" + MathUtil.formatBytesDynamic(getAvailableRam(), false));
+        LOGGER.info("&aWolne: &b" + MathUtil.formatBytesDynamic(SystemUtil.getFreeRam(), false));
+        LOGGER.info("&aUżyte: &b" + MathUtil.formatBytesDynamic(SystemUtil.getUsedRam(), false));
+        LOGGER.info("&aDostępne: &b" + MathUtil.formatBytesDynamic(SystemUtil.getMaxRam(), false));
+
+        LOGGER.print();
+        LOGGER.print();
+
+        LOGGER.alert("&4Pamięć SWAP");
+        LOGGER.info("&aWolne: &b" + MathUtil.formatBytesDynamic(SystemUtil.getFreeSwap(), false));
+        LOGGER.info("&aUżyte: &b" + MathUtil.formatBytesDynamic(SystemUtil.getUsedSwap(), false));
+        LOGGER.info("&aDostępne: &b" + MathUtil.formatBytesDynamic(SystemUtil.getMaxSwap(), false));
+
+        LOGGER.print();
+        LOGGER.print();
+
+        LOGGER.alert("&4Pamięć RAM + SWAP");
+        LOGGER.info("&aWolne: &b" + MathUtil.formatBytesDynamic(SystemUtil.getFreeRam() + SystemUtil.getFreeSwap(), false));
+        LOGGER.info("&aUżyte: &b" + MathUtil.formatBytesDynamic(SystemUtil.getUsedRam() + SystemUtil.getUsedSwap(), false));
+        LOGGER.info("&aDostępne: &b" + MathUtil.formatBytesDynamic(SystemUtil.getMaxSwap() + SystemUtil.getMaxRam(), false));
 
         LOGGER.print();
         LOGGER.print();
@@ -50,28 +81,16 @@ public final class SystemInfoTest {
         final GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
 
         LOGGER.info("&aJęzyk: &b" + SystemUtil.LOCALE.toLanguageTag());
-        LOGGER.info("&aLiczba monitorów: &b" + environment.getScreenDevices().length);
+        LOGGER.info("&aDostępne monitory: &b" + environment.getScreenDevices().length);
 
         LOGGER.print();
         LOGGER.print();
 
+        LOGGER.info("&aAktualna liczba wątków aplikacji: &b" + ThreadUtil.getThreadsCount() + " &g/&b " + ThreadUtil.getPeakThreadsCount());
         try {
             LOGGER.info("&aUzycje ramu przez aktualny process&b: " + MathUtil.formatBytesDynamic(SystemUtil.getRamUsageByPid(ProcessHandle.current().pid()), false));
         } catch (final IOException ioException) {
             LOGGER.error("Nie udało się pozyskać ilości ram dla aktualnego procesu", ioException);
         }
-    }
-
-    //TODO: Usun to jak wyhdzie nowe IndianUtils
-    public static long getUsedRam() {
-        return getAvailableRam() - getFreeRam();
-    }
-
-    public static long getAvailableRam() {
-        return ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalMemorySize();
-    }
-
-    public static long getFreeRam() {
-        return ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreeMemorySize();
     }
 }
