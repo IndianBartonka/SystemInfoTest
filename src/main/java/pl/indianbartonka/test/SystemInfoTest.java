@@ -5,9 +5,6 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.IOException;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Collections;
 import java.util.List;
 import pl.indianbartonka.util.MathUtil;
 import pl.indianbartonka.util.ThreadUtil;
@@ -19,6 +16,7 @@ import pl.indianbartonka.util.system.SystemUtil;
 public final class SystemInfoTest {
 
     public static void main(final String[] args) {
+        //TODO: Wyłączyć plik logu jak wyjdzie nowe IndianUtils
         final Logger logger = new Logger(new LoggerConfiguration(true, System.getProperty("user.dir") + File.separator + "logs", true)) {
         };
 
