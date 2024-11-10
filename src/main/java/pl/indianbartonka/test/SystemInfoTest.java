@@ -6,6 +6,7 @@ import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import pl.indianbartonka.util.DateUtil;
 import pl.indianbartonka.util.MathUtil;
 import pl.indianbartonka.util.ThreadUtil;
 import pl.indianbartonka.util.argument.Arg;
@@ -26,6 +27,8 @@ public final class SystemInfoTest {
     };
 
     public static void main(final String[] args) {
+        final long startTime = System.currentTimeMillis();
+
         final ArgumentParser argumentParser = new ArgumentParser(args);
 
         if (argumentParser.isAnyArgument()) {
@@ -85,6 +88,9 @@ public final class SystemInfoTest {
         } else {
             noArgs();
         }
+
+        LOGGER.println();
+        LOGGER.info("&aWykonano w:&b "+ DateUtil.formatTimeDynamic(System.currentTimeMillis() - startTime, true));
     }
 
     private static void noArgs() {
