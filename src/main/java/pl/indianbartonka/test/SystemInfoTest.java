@@ -20,7 +20,9 @@ import pl.indianbartonka.util.system.SystemUtil;
 public final class SystemInfoTest {
 
     private static final LoggerConfiguration loggerConfiguration = LoggerConfiguration.builder()
-            .setLogsPath(System.getProperty("user.dir") + File.separator + "logs")
+            .setLogName("SystemInfoLog " + DateUtil.getFixedDate())
+            .setLoggingToFile(true)
+            .setOneLog(false)//TODO: Usuń jak wyjdzie nowe IndianUtils
             .build();
 
     private static final Logger LOGGER = new Logger(loggerConfiguration) {
@@ -90,7 +92,7 @@ public final class SystemInfoTest {
         }
 
         LOGGER.println();
-        LOGGER.info("&aWykonano w:&b "+ DateUtil.formatTimeDynamic(System.currentTimeMillis() - startTime, true));
+        LOGGER.info("&aWykonano w:&b " + DateUtil.formatTimeDynamic(System.currentTimeMillis() - startTime, true));
     }
 
     private static void noArgs() {
