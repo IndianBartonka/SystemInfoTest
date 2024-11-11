@@ -157,16 +157,6 @@ public final class SystemInfoTest {
 
         LOGGER.alert("&4Monitory");
 
-        logGraphicsInfo();
-
-        LOGGER.println();
-        LOGGER.println();
-
-        LOGGER.alert("&4Inne informacje");
-        logOtherInfo();
-    }
-
-    private static void logGraphicsInfo() {
         final GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
         final GraphicsDevice[] devices = environment.getScreenDevices();
         LOGGER.info("&aDostępne monitory: &b" + devices.length);
@@ -186,12 +176,13 @@ public final class SystemInfoTest {
                 LOGGER.info("&aPrzyspieszona pamięć akceleracji: &cNiedostępna");
             }
         }
-    }
-
-    private static void logOtherInfo() {
-        LOGGER.info("&aJęzyk: &b" + SystemUtil.LOCALE.toLanguageTag());
 
         LOGGER.println();
+        LOGGER.println();
+
+        LOGGER.alert("&4Inne informacje");
+        LOGGER.info("&aJęzyk: &b" + SystemUtil.LOCALE.toLanguageTag());
+
         LOGGER.println();
         LOGGER.info("&aAktualna liczba wątków aplikacji: &b" + ThreadUtil.getThreadsCount() + " &g/&b " + ThreadUtil.getPeakThreadsCount());
         try {
