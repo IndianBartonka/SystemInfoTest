@@ -1,13 +1,16 @@
 package pl.indianbartonka.test;
 
+import java.awt.Desktop;
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import pl.indianbartonka.util.DateUtil;
 import pl.indianbartonka.util.MathUtil;
+import pl.indianbartonka.util.MessageUtil;
 import pl.indianbartonka.util.ThreadUtil;
 import pl.indianbartonka.util.argument.Arg;
 import pl.indianbartonka.util.argument.ArgumentParser;
@@ -184,6 +187,25 @@ public final class SystemInfoTest {
 
         LOGGER.alert("&4Inne informacje");
         LOGGER.info("&aJęzyk: &b" + SystemUtil.LOCALE.toLanguageTag());
+
+        if (Desktop.isDesktopSupported()) {
+            final Desktop desktop = Desktop.getDesktop();
+
+            final List<Desktop.Action> supportedActions = new ArrayList<>();
+
+            for (final Desktop.Action action : Desktop.Action.values()) {
+                if (desktop.isSupported(action)) {
+                    supportedActions.add(action);
+                }
+            }
+
+            LOGGER.info("&aWspierane akcje:&b " + MessageUtil.objectListToString(supportedActions, "&e,&b "));
+
+        } else {
+            LOGGER.println();
+            LOGGER.alert("&cKlasa Desktop nie jest obsługiwana na tym systemie.");
+        }
+
 
         LOGGER.println();
         LOGGER.info("&aAktualna liczba wątków aplikacji: &b" + ThreadUtil.getThreadsCount() + " &g/&b " + ThreadUtil.getPeakThreadsCount());
