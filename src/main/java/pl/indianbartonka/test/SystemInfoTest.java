@@ -23,9 +23,8 @@ import pl.indianbartonka.util.system.SystemUtil;
 public final class SystemInfoTest {
 
     private static final LoggerConfiguration loggerConfiguration = LoggerConfiguration.builder()
-            .setLogName("SystemInfoLog " + DateUtil.getFixedDate())
             .setLoggingToFile(true)
-            .setOneLog(false)//TODO: Usuń jak wyjdzie nowe IndianUtils
+            .setOneLog(true)
             .build();
 
     private static final Logger LOGGER = new Logger(loggerConfiguration) {
