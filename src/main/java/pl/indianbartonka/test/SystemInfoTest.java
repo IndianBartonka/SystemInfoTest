@@ -159,25 +159,29 @@ public final class SystemInfoTest {
         LOGGER.println();
         LOGGER.println();
 
-        LOGGER.alert("&4Monitory");
+        if (GraphicsEnvironment.isHeadless()) {
+            LOGGER.alert("System działa w trybie headless. Informacje dotyczące monitorów są niedostępne");
+        } else {
+            LOGGER.alert("&4Monitory");
 
-        final GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        final GraphicsDevice[] devices = environment.getScreenDevices();
-        LOGGER.info("&aDostępne monitory: &b" + devices.length);
+            final GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            final GraphicsDevice[] devices = environment.getScreenDevices();
+            LOGGER.info("&aDostępne monitory: &b" + devices.length);
 
-        for (final GraphicsDevice device : devices) {
-            final DisplayMode displayMode = device.getDisplayMode();
-            LOGGER.println();
-            LOGGER.info("&aID: &b" + device.getIDstring());
-            LOGGER.info("&aRoździelczość: &b" + displayMode.getWidth() + "&f x&b " + displayMode.getHeight());
-            LOGGER.info("&aGłębia kolorów: &b" + displayMode.getBitDepth() + " &eBitów");
-            LOGGER.info("&aOdświeżanie: &b" + displayMode.getRefreshRate() + " &eHz");
+            for (final GraphicsDevice device : devices) {
+                final DisplayMode displayMode = device.getDisplayMode();
+                LOGGER.println();
+                LOGGER.info("&aID: &b" + device.getIDstring());
+                LOGGER.info("&aRoździelczość: &b" + displayMode.getWidth() + "&f x&b " + displayMode.getHeight());
+                LOGGER.info("&aGłębia kolorów: &b" + displayMode.getBitDepth() + " &eBitów");
+                LOGGER.info("&aOdświeżanie: &b" + displayMode.getRefreshRate() + " &eHz");
 
-            final int acceleratedMemory = device.getAvailableAcceleratedMemory();
-            if (acceleratedMemory != -1) {
-                LOGGER.info("&aPrzyspieszona pamięć akceleracji: &b" + acceleratedMemory + " MB");
-            } else {
-                LOGGER.info("&aPrzyspieszona pamięć akceleracji: &cNiedostępna");
+                final int acceleratedMemory = device.getAvailableAcceleratedMemory();
+                if (acceleratedMemory != -1) {
+                    LOGGER.info("&aPrzyspieszona pamięć akceleracji: &b" + acceleratedMemory + " MB");
+                } else {
+                    LOGGER.info("&aPrzyspieszona pamięć akceleracji: &cNiedostępna");
+                }
             }
         }
 
