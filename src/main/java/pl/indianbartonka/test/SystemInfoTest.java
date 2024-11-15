@@ -160,7 +160,7 @@ public final class SystemInfoTest {
         LOGGER.println();
 
         if (GraphicsEnvironment.isHeadless()) {
-            LOGGER.alert("System działa w trybie headless. Informacje dotyczące monitorów są niedostępne");
+            LOGGER.alert("&cSystem działa w trybie headless. Informacje dotyczące monitorów są niedostępne");
         } else {
             LOGGER.alert("&4Monitory");
 
