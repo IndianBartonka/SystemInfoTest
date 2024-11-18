@@ -17,6 +17,8 @@ import pl.indianbartonka.util.argument.ArgumentParser;
 import pl.indianbartonka.util.logger.LogState;
 import pl.indianbartonka.util.logger.Logger;
 import pl.indianbartonka.util.logger.config.LoggerConfiguration;
+import pl.indianbartonka.util.network.Network;
+import pl.indianbartonka.util.network.NetworkUtil;
 import pl.indianbartonka.util.system.Disk;
 import pl.indianbartonka.util.system.SystemUtil;
 
@@ -110,6 +112,25 @@ public final class SystemInfoTest {
         LOGGER.info("&aArchitektura: &b" + System.getProperty("os.arch") + "&4 |&b " + SystemUtil.getCurrentArch());
         LOGGER.info("&aDystrybucja: &b" + SystemUtil.getDistribution());
         LOGGER.info("&aNazwa z dystrybucją: &b" + SystemUtil.getFullOSNameWithDistribution());
+
+        LOGGER.println();
+        LOGGER.println();
+
+        LOGGER.alert("&4Sieć WLAN i LAN");
+
+        LOGGER.info("&aPołączono z siecią o nazwie:&b " + NetworkUtil.getWiFiSSID());
+
+        LOGGER.println();
+        LOGGER.info("&aIPv&d4");
+        for (final Network network : NetworkUtil.getIPv4()) {
+            LOGGER.info("&3" + network.networkInterface().getDisplayName() + " &7(&d" + network.networkInterface().getName() + "&7)&4 -&b " + network.hostAddress());
+        }
+
+        LOGGER.println();
+        LOGGER.info("&aIPv&d6");
+        for (final Network network : NetworkUtil.getIPv6()) {
+            LOGGER.info("&3" + network.networkInterface().getDisplayName() + " &7(&d" + network.networkInterface().getName() + "&7)&4 -&b " + network.hostAddress());
+        }
 
         LOGGER.println();
         LOGGER.println();
