@@ -4,6 +4,7 @@ import java.awt.Desktop;
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.SystemTray;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -218,6 +219,14 @@ public final class SystemInfoTest {
         LOGGER.info("&aJęzyk: &b" + SystemUtil.LOCALE.toLanguageTag());
         LOGGER.info("&aKodowanie: &b" + Charset.defaultCharset().displayName());
         LOGGER.info("&aStrefa czasowa: &b" + ZoneId.systemDefault());
+
+        if (!GraphicsEnvironment.isHeadless()) {
+            if (SystemTray.isSupported()) {
+                LOGGER.info("&bSystemTray&a jest wspierany");
+            } else {
+                LOGGER.info("&bSystemTray&c nie jest wspierany");
+            }
+        }
 
         if (Desktop.isDesktopSupported()) {
             final List<Desktop.Action> supportedActions = new ArrayList<>();
