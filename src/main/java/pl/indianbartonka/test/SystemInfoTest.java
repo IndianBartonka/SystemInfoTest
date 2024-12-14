@@ -6,6 +6,9 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.nio.charset.Charset;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import pl.indianbartonka.util.DateUtil;
@@ -58,7 +61,6 @@ public final class SystemInfoTest {
                         LOGGER.println();
                         LOGGER.info("&4Ram Test");
                         for (int i = 0; i < times; i++) {
-                            //TODO: Użyj metody print w Logger po tym jak wyjdzie nowe IndianUtils
 
                             final String used = MathUtil.formatBytesDynamic(SystemUtil.getUsedRam(), true);
                             final String max = MathUtil.formatBytesDynamic(SystemUtil.getMaxRam(), true);
@@ -109,6 +111,7 @@ public final class SystemInfoTest {
         LOGGER.alert("&4System Info");
         LOGGER.info("&aNazwa systemu: &b" + System.getProperty("os.name") + "&4 |&b " + SystemUtil.getSystem() + "&4 |&b " + SystemUtil.getSystemFamily());
         LOGGER.info("&aWersja systemu: &b" + SystemUtil.getOSVersion());
+        LOGGER.info("&aLogiczne rdzenie: &b" + ThreadUtil.getLogicalThreads());
         LOGGER.info("&aArchitektura: &b" + System.getProperty("os.arch") + "&4 |&b " + SystemUtil.getCurrentArch());
         LOGGER.info("&aDystrybucja: &b" + SystemUtil.getDistribution());
         LOGGER.info("&aNazwa z dystrybucją: &b" + SystemUtil.getFullOSNameWithDistribution());
@@ -121,14 +124,16 @@ public final class SystemInfoTest {
         LOGGER.info("&aPołączono z siecią o nazwie:&b " + NetworkUtil.getWiFiSSID());
 
         LOGGER.println();
-        LOGGER.info("&aIPv&d4");
-        for (final Network network : NetworkUtil.getIPv4()) {
+        final List<Network> ipv4 = NetworkUtil.getIPv4();
+        LOGGER.info("&aIPv&d4&4 -&7 " + ipv4.size());
+        for (final Network network : ipv4) {
             LOGGER.info("&3" + network.networkInterface().getDisplayName() + " &7(&d" + network.networkInterface().getName() + "&7)&4 -&b " + network.hostAddress());
         }
 
         LOGGER.println();
-        LOGGER.info("&aIPv&d6");
-        for (final Network network : NetworkUtil.getIPv6()) {
+        final List<Network> ipv6 = NetworkUtil.getIPv6();
+        LOGGER.info("&aIPv&d6&4 -&7 " + ipv6.size());
+        for (final Network network : ipv6) {
             LOGGER.info("&3" + network.networkInterface().getDisplayName() + " &7(&d" + network.networkInterface().getName() + "&7)&4 -&b " + network.hostAddress());
         }
 
@@ -211,14 +216,14 @@ public final class SystemInfoTest {
 
         LOGGER.alert("&4Inne informacje");
         LOGGER.info("&aJęzyk: &b" + SystemUtil.LOCALE.toLanguageTag());
+        LOGGER.info("&aKodowanie: &b" + Charset.defaultCharset().displayName());
+        LOGGER.info("&aStrefa czasowa: &b" + ZoneId.systemDefault());
 
         if (Desktop.isDesktopSupported()) {
-            final Desktop desktop = Desktop.getDesktop();
-
             final List<Desktop.Action> supportedActions = new ArrayList<>();
 
             for (final Desktop.Action action : Desktop.Action.values()) {
-                if (desktop.isSupported(action)) {
+                if (Desktop.getDesktop().isSupported(action)) {
                     supportedActions.add(action);
                 }
             }
@@ -230,9 +235,14 @@ public final class SystemInfoTest {
             LOGGER.alert("&cKlasa Desktop nie jest obsługiwana na tym systemie. Albo system działa w trybie headless");
         }
 
-
         LOGGER.println();
         LOGGER.info("&aAktualna liczba wątków aplikacji: &b" + ThreadUtil.getThreadsCount() + " &g/&b " + ThreadUtil.getPeakThreadsCount());
+
+        final List<String> flags = ManagementFactory.getRuntimeMXBean().getInputArguments();
+        if (!flags.isEmpty()) {
+            LOGGER.info("&aWykryte flagi startowe &d(&1" + flags.size() + "&d):&b " + MessageUtil.stringListToString(flags, " &a,&b "));
+        }
+
         try {
             LOGGER.info("&aUżycie RAM przez aktualny proces: &b" + MathUtil.formatBytesDynamic(SystemUtil.getRamUsageByPid(ProcessHandle.current().pid()), false));
         } catch (final IOException ioException) {
