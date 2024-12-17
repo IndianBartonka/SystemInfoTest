@@ -259,3 +259,4 @@ public final class SystemInfoTest {
         }
     }
 }
+//TODO: Dodaj jakieś info o buferze może czy coś idk może download speed sredni oblicz
