@@ -111,9 +111,9 @@ public final class SystemInfoTest {
 
         LOGGER.alert("&4System Info");
         LOGGER.info("&aNazwa systemu: &b" + System.getProperty("os.name") + "&4 |&b " + SystemUtil.getSystem() + "&4 |&b " + SystemUtil.getSystemFamily());
+        LOGGER.info("&aArchitektura: &b" + System.getProperty("os.arch") + "&4 |&b " + SystemUtil.getCurrentArch());
         LOGGER.info("&aWersja systemu: &b" + SystemUtil.getOSVersion());
         LOGGER.info("&aLogiczne rdzenie: &b" + ThreadUtil.getLogicalThreads());
-        LOGGER.info("&aArchitektura: &b" + System.getProperty("os.arch") + "&4 |&b " + SystemUtil.getCurrentArch());
         LOGGER.info("&aDystrybucja: &b" + SystemUtil.getDistribution());
         LOGGER.info("&aNazwa z dystrybucją: &b" + SystemUtil.getFullOSNameWithDistribution());
 
@@ -186,9 +186,7 @@ public final class SystemInfoTest {
         LOGGER.println();
         LOGGER.println();
 
-        if (GraphicsEnvironment.isHeadless()) {
-            LOGGER.alert("&cSystem działa w trybie headless. Informacje dotyczące monitorów są niedostępne");
-        } else {
+        if (!GraphicsEnvironment.isHeadless()) {
             LOGGER.alert("&4Monitory");
 
             final GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -210,6 +208,31 @@ public final class SystemInfoTest {
                     LOGGER.info("&aPrzyspieszona pamięć akceleracji: &cNiedostępna");
                 }
             }
+
+            LOGGER.println();
+            LOGGER.println();
+
+            if (SystemTray.isSupported()) {
+                LOGGER.info("&bSystemTray&a jest wspierany");
+            } else {
+                LOGGER.info("&bSystemTray&c nie jest wspierany");
+            }
+
+            if (Desktop.isDesktopSupported()) {
+                final List<Desktop.Action> supportedActions = new ArrayList<>();
+
+                for (final Desktop.Action action : Desktop.Action.values()) {
+                    if (Desktop.getDesktop().isSupported(action)) {
+                        supportedActions.add(action);
+                    }
+                }
+
+                LOGGER.info("&aWspierane akcje:&b " + MessageUtil.objectListToString(supportedActions, "&e,&b "));
+
+            } else {
+                LOGGER.println();
+                LOGGER.alert("&cKlasa Desktop nie jest obsługiwana na tym systemie.");
+            }
         }
 
         LOGGER.println();
@@ -219,30 +242,6 @@ public final class SystemInfoTest {
         LOGGER.info("&aJęzyk: &b" + SystemUtil.LOCALE.toLanguageTag());
         LOGGER.info("&aKodowanie: &b" + Charset.defaultCharset().displayName());
         LOGGER.info("&aStrefa czasowa: &b" + ZoneId.systemDefault());
-
-        if (!GraphicsEnvironment.isHeadless()) {
-            if (SystemTray.isSupported()) {
-                LOGGER.info("&bSystemTray&a jest wspierany");
-            } else {
-                LOGGER.info("&bSystemTray&c nie jest wspierany");
-            }
-        }
-
-        if (Desktop.isDesktopSupported()) {
-            final List<Desktop.Action> supportedActions = new ArrayList<>();
-
-            for (final Desktop.Action action : Desktop.Action.values()) {
-                if (Desktop.getDesktop().isSupported(action)) {
-                    supportedActions.add(action);
-                }
-            }
-
-            LOGGER.info("&aWspierane akcje:&b " + MessageUtil.objectListToString(supportedActions, "&e,&b "));
-
-        } else {
-            LOGGER.println();
-            LOGGER.alert("&cKlasa Desktop nie jest obsługiwana na tym systemie. Albo system działa w trybie headless");
-        }
 
         LOGGER.println();
         LOGGER.info("&aAktualna liczba wątków aplikacji: &b" + ThreadUtil.getThreadsCount() + " &g/&b " + ThreadUtil.getPeakThreadsCount());
@@ -259,4 +258,3 @@ public final class SystemInfoTest {
         }
     }
 }
-//TODO: Dodaj jakieś info o buferze może czy coś idk może download speed sredni oblicz
