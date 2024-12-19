@@ -233,6 +233,8 @@ public final class SystemInfoTest {
                 LOGGER.println();
                 LOGGER.alert("&cKlasa Desktop nie jest obsługiwana na tym systemie.");
             }
+        } else {
+            LOGGER.alert("&cSystem działa w trybie headless. Niektóre informacje są niedostępne");
         }
 
         LOGGER.println();
