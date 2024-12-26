@@ -6,24 +6,26 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.SystemTray;
 import java.io.File;
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import pl.indianbartonka.util.DateUtil;
+import pl.indianbartonka.util.IndianUtils;
 import pl.indianbartonka.util.MathUtil;
 import pl.indianbartonka.util.MessageUtil;
 import pl.indianbartonka.util.ThreadUtil;
 import pl.indianbartonka.util.argument.Arg;
 import pl.indianbartonka.util.argument.ArgumentParser;
+import pl.indianbartonka.util.exception.UnsupportedSystemException;
 import pl.indianbartonka.util.logger.LogState;
 import pl.indianbartonka.util.logger.Logger;
 import pl.indianbartonka.util.logger.config.LoggerConfiguration;
 import pl.indianbartonka.util.network.Network;
 import pl.indianbartonka.util.network.NetworkUtil;
 import pl.indianbartonka.util.system.Disk;
+import pl.indianbartonka.util.system.SystemOS;
 import pl.indianbartonka.util.system.SystemUtil;
 
 public final class SystemInfoTest {
@@ -103,19 +105,27 @@ public final class SystemInfoTest {
     }
 
     private static void noArgs() {
-        LOGGER.info("&aUżyto Java: &b" + System.getProperty("java.vm.name") + " &1" + System.getProperty("java.version") + " &5(&d" + System.getProperty("java.vendor") + "&5)&r na&f "
+        LOGGER.info("&aUżyto Java: &b" + System.getProperty("java.vm.name") + " &1" + System.getProperty("java.runtime.version") + " &5(&d" + System.getProperty("java.vendor") + "&5)&r na&f "
                 + SystemUtil.getFullOSNameWithDistribution() + " &5(&c" + SystemUtil.getFullyArchCode() + "&5)");
 
         LOGGER.println();
         LOGGER.println();
 
         LOGGER.alert("&4System Info");
-        LOGGER.info("&aNazwa systemu: &b" + System.getProperty("os.name") + "&4 |&b " + SystemUtil.getSystem() + "&4 |&b " + SystemUtil.getSystemFamily());
+
+        final SystemOS systemOS = SystemUtil.getSystem();
+
+        LOGGER.info("&aNazwa systemu: &b" + System.getProperty("os.name") + "&4 |&b " + systemOS + "&4 |&b " + SystemUtil.getSystemFamily());
         LOGGER.info("&aArchitektura: &b" + System.getProperty("os.arch") + "&4 |&b " + SystemUtil.getCurrentArch());
         LOGGER.info("&aWersja systemu: &b" + SystemUtil.getOSVersion());
         LOGGER.info("&aLogiczne rdzenie: &b" + ThreadUtil.getLogicalThreads());
         LOGGER.info("&aDystrybucja: &b" + SystemUtil.getDistribution());
         LOGGER.info("&aNazwa z dystrybucją: &b" + SystemUtil.getFullOSNameWithDistribution());
+
+        if (systemOS == SystemOS.LINUX) {
+            LOGGER.info("&aBox64: &b" + IndianUtils.box64Check());
+            LOGGER.info("&aWine: &b" + IndianUtils.wineCheck());
+        }
 
         LOGGER.println();
         LOGGER.println();
@@ -255,8 +265,8 @@ public final class SystemInfoTest {
 
         try {
             LOGGER.info("&aUżycie RAM przez aktualny proces: &b" + MathUtil.formatBytesDynamic(SystemUtil.getRamUsageByPid(ProcessHandle.current().pid()), false));
-        } catch (final IOException ioException) {
-            LOGGER.error("Nie udało się pozyskać ilości RAM dla aktualnego procesu", ioException);
+        } catch (final UnsupportedSystemException unsupportedSystemException) {
+            LOGGER.error("Nie udało się pozyskać ilości RAM dla aktualnego procesu", unsupportedSystemException);
         }
     }
 }
