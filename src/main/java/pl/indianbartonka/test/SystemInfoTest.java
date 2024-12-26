@@ -123,6 +123,8 @@ public final class SystemInfoTest {
         LOGGER.info("&aNazwa z dystrybucją: &b" + SystemUtil.getFullOSNameWithDistribution());
 
         if (systemOS == SystemOS.LINUX) {
+            LOGGER.println();
+            LOGGER.alert("&3Dodadkowe Info");
             LOGGER.info("&aBox64: &b" + IndianUtils.box64Check());
             LOGGER.info("&aWine: &b" + IndianUtils.wineCheck());
         }
