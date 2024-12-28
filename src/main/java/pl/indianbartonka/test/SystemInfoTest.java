@@ -25,7 +25,7 @@ import pl.indianbartonka.util.logger.config.LoggerConfiguration;
 import pl.indianbartonka.util.network.Network;
 import pl.indianbartonka.util.network.NetworkUtil;
 import pl.indianbartonka.util.system.Disk;
-import pl.indianbartonka.util.system.SystemOS;
+import pl.indianbartonka.util.system.SystemFamily;
 import pl.indianbartonka.util.system.SystemUtil;
 
 public final class SystemInfoTest {
@@ -113,18 +113,21 @@ public final class SystemInfoTest {
 
         LOGGER.alert("&4System Info");
 
-        final SystemOS systemOS = SystemUtil.getSystem();
+        final SystemFamily family = SystemUtil.getSystemFamily();
 
-        LOGGER.info("&aNazwa systemu: &b" + System.getProperty("os.name") + "&4 |&b " + systemOS + "&4 |&b " + SystemUtil.getSystemFamily());
+        LOGGER.info("&aNazwa systemu: &b" + System.getProperty("os.name") + "&4 |&b " + SystemUtil.getSystem() + "&4 |&b " + family);
         LOGGER.info("&aArchitektura: &b" + System.getProperty("os.arch") + "&4 |&b " + SystemUtil.getCurrentArch());
         LOGGER.info("&aWersja systemu: &b" + SystemUtil.getOSVersion());
         LOGGER.info("&aLogiczne rdzenie: &b" + ThreadUtil.getLogicalThreads());
         LOGGER.info("&aDystrybucja: &b" + SystemUtil.getDistribution());
         LOGGER.info("&aNazwa z dystrybucją: &b" + SystemUtil.getFullOSNameWithDistribution());
 
-        if (systemOS == SystemOS.LINUX) {
-            LOGGER.println();
-            LOGGER.alert("&3Dodadkowe Info");
+        LOGGER.println();
+        LOGGER.alert("&3Dodadkowe Info");
+        final long uptimeMillis = (System.nanoTime() - ManagementFactory.getRuntimeMXBean().getStartTime()) / 1_000_000;
+        LOGGER.info("&cWirtualna maszyna javy działa przez:&b " + DateUtil.formatTimeDynamic(uptimeMillis));
+
+        if (family == SystemFamily.UNIX) {
             LOGGER.info("&aBox64: &b" + IndianUtils.box64Check());
             LOGGER.info("&aWine: &b" + IndianUtils.wineCheck());
         }
@@ -258,13 +261,15 @@ public final class SystemInfoTest {
         LOGGER.info("&aStrefa czasowa: &b" + ZoneId.systemDefault());
 
         LOGGER.println();
-        LOGGER.info("&aAktualna liczba wątków aplikacji: &b" + ThreadUtil.getThreadsCount() + " &g/&b " + ThreadUtil.getPeakThreadsCount());
+
 
         final List<String> flags = ManagementFactory.getRuntimeMXBean().getInputArguments();
         if (!flags.isEmpty()) {
             LOGGER.info("&aWykryte flagi startowe &d(&1" + flags.size() + "&d):&b " + MessageUtil.stringListToString(flags, " &a,&b "));
         }
 
+        LOGGER.println();
+        LOGGER.info("&aAktualna liczba wątków aplikacji: &b" + ThreadUtil.getThreadsCount() + " &g/&b " + ThreadUtil.getPeakThreadsCount());
         try {
             LOGGER.info("&aUżycie RAM przez aktualny proces: &b" + MathUtil.formatBytesDynamic(SystemUtil.getRamUsageByPid(ProcessHandle.current().pid()), false));
         } catch (final UnsupportedSystemException unsupportedSystemException) {
