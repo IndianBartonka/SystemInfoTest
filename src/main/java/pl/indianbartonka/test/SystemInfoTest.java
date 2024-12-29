@@ -10,6 +10,8 @@ import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import pl.indianbartonka.util.DateUtil;
 import pl.indianbartonka.util.IndianUtils;
@@ -209,18 +211,31 @@ public final class SystemInfoTest {
 
             for (final GraphicsDevice device : devices) {
                 final DisplayMode displayMode = device.getDisplayMode();
+                final DisplayMode maxMode = Arrays.stream(device.getDisplayModes())
+                        .max(Comparator.comparingInt(mode -> mode.getWidth() * mode.getHeight()))
+                        .orElse(displayMode);
+
                 LOGGER.println();
                 LOGGER.info("&aID: &b" + device.getIDstring());
+                LOGGER.info("&aTyp urządzenia: &b" + getDeviceType(device));
                 LOGGER.info("&aRoździelczość: &b" + displayMode.getWidth() + "&f x&b " + displayMode.getHeight());
+                LOGGER.info("&aMaksymalna rozdzielczość: &b" + maxMode.getWidth() + "x" + maxMode.getHeight());
                 LOGGER.info("&aGłębia kolorów: &b" + displayMode.getBitDepth() + " &eBitów");
                 LOGGER.info("&aOdświeżanie: &b" + displayMode.getRefreshRate() + " &eHz");
 
+                LOGGER.info("&aLiczba dostępnych trybów: &b" + device.getDisplayModes().length);
+
+                if (!device.isFullScreenSupported()) LOGGER.info("&cPełen ekran nie jest wspierany");
+
+                final String transparent = (device.getDefaultConfiguration().isTranslucencyCapable() ? "&bDostępna" : "&cNiedostępna");
+                LOGGER.info("&aObsługa przezroczystości: " + transparent);
+
+                final String displayChangeSupport = (device.isDisplayChangeSupported() ? "&bDostępna" : "&cNiedostępna");
+                LOGGER.info("&aZmiana trybu wyświetlania: " + displayChangeSupport);
+
                 final int acceleratedMemory = device.getAvailableAcceleratedMemory();
-                if (acceleratedMemory != -1) {
-                    LOGGER.info("&aPrzyspieszona pamięć akceleracji: &b" + acceleratedMemory + " MB");
-                } else {
-                    LOGGER.info("&aPrzyspieszona pamięć akceleracji: &cNiedostępna");
-                }
+                final String acceleratedMemorySupport = (acceleratedMemory != -1 ? "&b" + acceleratedMemory + " MB" : "&cNiedostępna");
+                LOGGER.info("&aPrzyspieszona pamięć akceleracji: "+ acceleratedMemorySupport);
             }
 
             LOGGER.println();
@@ -274,5 +289,14 @@ public final class SystemInfoTest {
         } catch (final UnsupportedSystemException unsupportedSystemException) {
             LOGGER.error("Nie udało się pozyskać ilości RAM dla aktualnego procesu", unsupportedSystemException);
         }
+    }
+
+    private static String getDeviceType(final GraphicsDevice device) {
+        return switch (device.getType()) {
+            case GraphicsDevice.TYPE_RASTER_SCREEN -> "Monitor";
+            case GraphicsDevice.TYPE_PRINTER -> "Drukarka";
+            case GraphicsDevice.TYPE_IMAGE_BUFFER -> "Bufor obrazu";
+            default -> "Inne";
+        };
     }
 }
