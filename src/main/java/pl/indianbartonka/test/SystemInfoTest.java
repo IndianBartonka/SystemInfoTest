@@ -136,7 +136,6 @@ public final class SystemInfoTest {
         LOGGER.println();
 
         LOGGER.alert("&4Sieć WLAN i LAN");
-
         LOGGER.info("&aPołączono z siecią o nazwie:&b " + NetworkUtil.getWiFiSSID());
 
         LOGGER.println();
@@ -166,7 +165,7 @@ public final class SystemInfoTest {
             LOGGER.println();
             LOGGER.info("&aNazwa: &3" + disk.name());
             LOGGER.info("&aŚcieżka: &3" + diskFile.getAbsolutePath());
-            LOGGER.info("&aTyp dysku:&b " + disk.type());
+            LOGGER.info("&aSystem Plików:&b " + disk.type());
             LOGGER.info("&aRozmiar bloku:&b " + disk.blockSize());
             LOGGER.info("&aTylko do odczytu:&b " + disk.readOnly());
             LOGGER.info("&aCałkowita pamięć:&b " + MathUtil.formatBytesDynamic(SystemUtil.getMaxDiskSpace(diskFile), false));
