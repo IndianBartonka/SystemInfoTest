@@ -8,11 +8,13 @@ import java.awt.SystemTray;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
+import java.security.Security;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import pl.indianbartonka.util.DateUtil;
 import pl.indianbartonka.util.IndianUtils;
 import pl.indianbartonka.util.MathUtil;
@@ -235,7 +237,7 @@ public final class SystemInfoTest {
 
                 final int acceleratedMemory = device.getAvailableAcceleratedMemory();
                 final String acceleratedMemorySupport = (acceleratedMemory != -1 ? "&b" + acceleratedMemory + " MB" : "&cNiedostępna");
-                LOGGER.info("&aPrzyspieszona pamięć akceleracji: "+ acceleratedMemorySupport);
+                LOGGER.info("&aPrzyspieszona pamięć akceleracji: " + acceleratedMemorySupport);
             }
 
             LOGGER.println();
@@ -276,11 +278,14 @@ public final class SystemInfoTest {
 
         LOGGER.println();
 
-
         final List<String> flags = ManagementFactory.getRuntimeMXBean().getInputArguments();
         if (!flags.isEmpty()) {
             LOGGER.info("&aWykryte flagi startowe &d(&1" + flags.size() + "&d):&b " + MessageUtil.stringListToString(flags, " &a,&b "));
         }
+
+        final Set<String> algorithms = Security.getAlgorithms("MessageDigest");
+
+        LOGGER.info("&aDostępnych &1" + algorithms.size() + "&a algorytmów&d: &b" + MessageUtil.stringListToString(algorithms.stream().toList(), "&a,&b "));
 
         LOGGER.println();
         LOGGER.info("&aAktualna liczba wątków aplikacji: &b" + ThreadUtil.getThreadsCount() + " &g/&b " + ThreadUtil.getPeakThreadsCount());
