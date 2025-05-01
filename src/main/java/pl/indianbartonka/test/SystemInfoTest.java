@@ -122,7 +122,9 @@ public final class SystemInfoTest {
         LOGGER.info("&aNazwa systemu: &b" + System.getProperty("os.name") + "&4 |&b " + SystemUtil.getSystem() + "&4 |&b " + family);
         LOGGER.info("&aArchitektura: &b" + System.getProperty("os.arch") + "&4 |&b " + SystemUtil.getCurrentArch());
         LOGGER.info("&aWersja systemu: &b" + SystemUtil.getOSVersion());
+        LOGGER.info("&aProcesor:&b " + SystemUtil.getProcesorName());
         LOGGER.info("&aLogiczne rdzenie: &b" + ThreadUtil.getLogicalThreads());
+        LOGGER.info("&aKarty Graficzne: &b" + SystemUtil.getGraphicCardName());
         LOGGER.info("&aDystrybucja: &b" + SystemUtil.getDistribution());
         LOGGER.info("&aNazwa z dystrybucją: &b" + SystemUtil.getFullOSNameWithDistribution());
 
