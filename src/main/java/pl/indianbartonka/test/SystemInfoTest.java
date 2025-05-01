@@ -236,10 +236,7 @@ public final class SystemInfoTest {
 
                 final String displayChangeSupport = (device.isDisplayChangeSupported() ? "&bDostępna" : "&cNiedostępna");
                 LOGGER.info("&aZmiana trybu wyświetlania: " + displayChangeSupport);
-
-                final int acceleratedMemory = device.getAvailableAcceleratedMemory();
-                final String acceleratedMemorySupport = (acceleratedMemory != -1 ? "&b" + acceleratedMemory + " MB" : "&cNiedostępna");
-                LOGGER.info("&aPrzyspieszona pamięć akceleracji: " + acceleratedMemorySupport);
+                
             }
 
             LOGGER.println();
