@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import javax.swing.JFrame;
 import pl.indianbartonka.util.DateUtil;
 import pl.indianbartonka.util.IndianUtils;
 import pl.indianbartonka.util.MathUtil;
@@ -34,17 +35,17 @@ import pl.indianbartonka.util.system.SystemUtil;
 
 public final class SystemInfoTest {
 
-    private static final LoggerConfiguration loggerConfiguration = LoggerConfiguration.builder()
+    private static final JFrame FRAME = new JFrame();
+    private static final LoggerConfiguration LOGGER_CONFIGURATION = LoggerConfiguration.builder()
             .setLoggingToFile(true)
             .setOneLog(true)
             .build();
 
-    private static final Logger LOGGER = new Logger(loggerConfiguration) {
+    private static final Logger LOGGER = new Logger(LOGGER_CONFIGURATION) {
     };
 
     public static void main(final String[] args) {
         final long startTime = System.currentTimeMillis();
-
         final ArgumentParser argumentParser = new ArgumentParser(args);
 
         if (argumentParser.isAnyArgument()) {
@@ -101,7 +102,15 @@ public final class SystemInfoTest {
                 }
             }
         } else {
-            noArgs();
+            try {
+                FRAME.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+                FRAME.setUndecorated(true);
+                FRAME.setVisible(false);
+                noArgs();
+                FRAME.dispose();
+            } finally {
+                FRAME.dispose();
+            }
         }
 
         LOGGER.println();
@@ -111,6 +120,9 @@ public final class SystemInfoTest {
     private static void noArgs() {
         LOGGER.info("&aUżyto Java: &b" + System.getProperty("java.vm.name") + " &1" + System.getProperty("java.runtime.version") + " &5(&d" + System.getProperty("java.vendor") + "&5)&r na&f "
                 + SystemUtil.getFullOSNameWithDistribution() + " &5(&c" + SystemUtil.getFullyArchCode() + "&5)");
+
+        final String processorName = SystemUtil.getProcesorName();
+        final String graphicCards = SystemUtil.getGraphicCardName();
 
         LOGGER.println();
         LOGGER.println();
@@ -122,9 +134,9 @@ public final class SystemInfoTest {
         LOGGER.info("&aNazwa systemu: &b" + System.getProperty("os.name") + "&4 |&b " + SystemUtil.getSystem() + "&4 |&b " + family);
         LOGGER.info("&aArchitektura: &b" + System.getProperty("os.arch") + "&4 |&b " + SystemUtil.getCurrentArch());
         LOGGER.info("&aWersja systemu: &b" + SystemUtil.getOSVersion());
-        LOGGER.info("&aProcesor:&b " + SystemUtil.getProcesorName());
+        LOGGER.info("&aProcesor:&b " + processorName);
         LOGGER.info("&aLogiczne rdzenie: &b" + ThreadUtil.getLogicalThreads());
-        LOGGER.info("&aKarty Graficzne: &b" + SystemUtil.getGraphicCardName());
+        LOGGER.info("&aKarty Graficzne: &b" + graphicCards);
         LOGGER.info("&aDystrybucja: &b" + SystemUtil.getDistribution());
         LOGGER.info("&aNazwa z dystrybucją: &b" + SystemUtil.getFullOSNameWithDistribution());
 
@@ -214,6 +226,11 @@ public final class SystemInfoTest {
             LOGGER.info("&aDostępne monitory: &b" + devices.length);
 
             for (final GraphicsDevice device : devices) {
+                try {
+                    device.setFullScreenWindow(FRAME);
+                } catch (final Exception ignore) {
+                }
+
                 final DisplayMode displayMode = device.getDisplayMode();
                 final DisplayMode maxMode = Arrays.stream(device.getDisplayModes())
                         .max(Comparator.comparingInt(mode -> mode.getWidth() * mode.getHeight()))
@@ -231,12 +248,9 @@ public final class SystemInfoTest {
 
                 if (!device.isFullScreenSupported()) LOGGER.info("&cPełen ekran nie jest wspierany");
 
-                final String transparent = (device.getDefaultConfiguration().isTranslucencyCapable() ? "&bDostępna" : "&cNiedostępna");
-                LOGGER.info("&aObsługa przezroczystości: " + transparent);
-
                 final String displayChangeSupport = (device.isDisplayChangeSupported() ? "&bDostępna" : "&cNiedostępna");
                 LOGGER.info("&aZmiana trybu wyświetlania: " + displayChangeSupport);
-                
+
             }
 
             LOGGER.println();
