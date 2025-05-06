@@ -193,7 +193,13 @@ public final class SystemInfoTest {
             LOGGER.println();
             LOGGER.info("&4Testowanie szybkości zapisu pliku&e 100mb 3razy");
             try {
-                LOGGER.info("&aCzas zapisu to:&b " + DateUtil.formatTimeDynamic(testDisk(disk, 100, 3)));
+                final long time = testDisk(disk, 100, 3);
+
+                if (time > -1) {
+                    LOGGER.info("&aCzas zapisu to:&b " + DateUtil.formatTimeDynamic(time));
+                } else {
+                    LOGGER.error("&cPodnieś poziom uprawnień aby przetestować dysk");
+                }
             } catch (final IOException ioException) {
                 ioException.printStackTrace();
             }
