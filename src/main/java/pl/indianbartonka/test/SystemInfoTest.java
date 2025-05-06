@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.security.Security;
 import java.time.ZoneId;
@@ -43,7 +44,6 @@ import pl.indianbartonka.util.system.SystemUtil;
 
 public final class SystemInfoTest {
 
-    private static final JFrame FRAME = new JFrame();
     private static final LoggerConfiguration LOGGER_CONFIGURATION = LoggerConfiguration.builder()
             .setLoggingToFile(true)
             .setOneLog(true)
@@ -110,15 +110,7 @@ public final class SystemInfoTest {
                 }
             }
         } else {
-            try {
-                FRAME.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-                FRAME.setUndecorated(true);
-                FRAME.setVisible(false);
-                noArgs();
-                FRAME.dispose();
-            } finally {
-                FRAME.dispose();
-            }
+            noArgs();
         }
 
         LOGGER.println();
@@ -235,6 +227,11 @@ public final class SystemInfoTest {
         LOGGER.println();
 
         if (!GraphicsEnvironment.isHeadless()) {
+            final JFrame jFrame = new JFrame();
+            jFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            jFrame.setUndecorated(true);
+            jFrame.setVisible(false);
+
             LOGGER.alert("&4Monitory");
 
             final GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -243,7 +240,7 @@ public final class SystemInfoTest {
 
             for (final GraphicsDevice device : devices) {
                 try {
-                    device.setFullScreenWindow(FRAME);
+                    device.setFullScreenWindow(jFrame);
                 } catch (final Exception ignore) {
                 }
 
@@ -293,6 +290,8 @@ public final class SystemInfoTest {
                 LOGGER.println();
                 LOGGER.alert("&cKlasa Desktop nie jest obsługiwana na tym systemie.");
             }
+
+            jFrame.dispose();
         } else {
             LOGGER.alert("&cSystem działa w trybie headless. Niektóre informacje są niedostępne");
         }
