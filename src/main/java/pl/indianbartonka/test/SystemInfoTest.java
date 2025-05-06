@@ -358,9 +358,11 @@ public final class SystemInfoTest {
             }
 
             return System.currentTimeMillis() - startTime;
+        } catch (final AccessDeniedException accessDeniedException) {
+            return -1;
         } finally {
-            FileUtil.deleteFile(file);
-            FileUtil.deleteFile(fileDir);
+            if (file.exists()) FileUtil.deleteFile(file);
+            if (fileDir.exists()) FileUtil.deleteFile(fileDir);
         }
     }
 }
