@@ -20,7 +20,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import javax.swing.JFrame;
 import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.VisibleForTesting;
 import pl.indianbartonka.util.DateUtil;
@@ -122,7 +121,7 @@ public final class SystemInfoTest {
                 + SystemUtil.getFullOSNameWithDistribution() + " &5(&c" + SystemUtil.getFullyArchCode() + "&5)");
 
         final String processorName = SystemUtil.getProcesorName();
-        final String graphicCards = SystemUtil.getGraphicCardName();
+        final String graphicCards = MessageUtil.stringListToString(SystemUtil.getGraphicCardsName(), ", ");
 
         LOGGER.println();
         LOGGER.println();
@@ -233,11 +232,6 @@ public final class SystemInfoTest {
         LOGGER.println();
 
         if (!GraphicsEnvironment.isHeadless()) {
-            final JFrame jFrame = new JFrame();
-            jFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-            jFrame.setUndecorated(true);
-            jFrame.setVisible(false);
-
             LOGGER.alert("&4Monitory");
 
             final GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -245,11 +239,6 @@ public final class SystemInfoTest {
             LOGGER.info("&aDostępne monitory: &b" + devices.length);
 
             for (final GraphicsDevice device : devices) {
-                try {
-                    device.setFullScreenWindow(jFrame);
-                } catch (final Exception ignore) {
-                }
-
                 final DisplayMode displayMode = device.getDisplayMode();
                 final DisplayMode maxMode = Arrays.stream(device.getDisplayModes())
                         .max(Comparator.comparingInt(mode -> mode.getWidth() * mode.getHeight()))
@@ -262,13 +251,9 @@ public final class SystemInfoTest {
                 LOGGER.info("&aMaksymalna rozdzielczość: &b" + maxMode.getWidth() + "x" + maxMode.getHeight());
                 LOGGER.info("&aGłębia kolorów: &b" + displayMode.getBitDepth() + " &eBitów");
                 LOGGER.info("&aOdświeżanie: &b" + displayMode.getRefreshRate() + " &eHz");
-
                 LOGGER.info("&aLiczba dostępnych trybów: &b" + device.getDisplayModes().length);
 
                 if (!device.isFullScreenSupported()) LOGGER.info("&cPełen ekran nie jest wspierany");
-
-                final String displayChangeSupport = (device.isDisplayChangeSupported() ? "&bDostępna" : "&cNiedostępna");
-                LOGGER.info("&aZmiana trybu wyświetlania: " + displayChangeSupport);
 
             }
 
@@ -296,8 +281,6 @@ public final class SystemInfoTest {
                 LOGGER.println();
                 LOGGER.alert("&cKlasa Desktop nie jest obsługiwana na tym systemie.");
             }
-
-            jFrame.dispose();
         } else {
             LOGGER.alert("&cSystem działa w trybie headless. Niektóre informacje są niedostępne");
         }
