@@ -121,7 +121,7 @@ public final class SystemInfoTest {
                 + SystemUtil.getFullOSNameWithDistribution() + " &5(&c" + SystemUtil.getFullyArchCode() + "&5)");
 
         final String processorName = SystemUtil.getProcesorName();
-        final String graphicCards = MessageUtil.stringListToString(SystemUtil.getGraphicCardsName(), ", ");
+        final String graphicCards = MessageUtil.stringListToString(SystemUtil.getGraphicCardsName(), " | ");
 
         LOGGER.println();
         LOGGER.println();
