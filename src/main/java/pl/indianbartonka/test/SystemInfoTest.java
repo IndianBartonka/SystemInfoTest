@@ -17,7 +17,9 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.jetbrains.annotations.CheckReturnValue;
@@ -51,6 +53,9 @@ public final class SystemInfoTest {
 
     private static final Logger LOGGER = new Logger(LOGGER_CONFIGURATION) {
     };
+
+    private static final List<Disk> disks = SystemUtil.getAvailableDisk();
+    private static final Map<Disk, Long> diskTest = new HashMap<>();
 
     public static void main(final String[] args) {
         final long startTime = System.currentTimeMillis();
@@ -121,8 +126,29 @@ public final class SystemInfoTest {
         LOGGER.info("&aUżyto Java: &b" + System.getProperty("java.vm.name") + " &1" + System.getProperty("java.runtime.version") + " &5(&d" + System.getProperty("java.vendor") + "&5)&r na&f "
                 + SystemUtil.getFullOSNameWithDistribution() + " &5(&c" + SystemUtil.getFullyArchCode() + "&5)");
 
-        final String processorName = SystemUtil.getProcesorName();
-        final String graphicCards = MessageUtil.stringListToString(SystemUtil.getGraphicCardsName(), " | ");
+        String processorName = "BRAK DANYCH";
+        String graphicCards = "BRAK DANYCH";
+
+        try {
+            LOGGER.print("&aPozyskiwanie nazwy procesora....");
+            processorName = SystemUtil.getProcesorName();
+
+            LOGGER.print("&aPozyskiwanie kart graficznych....");
+            graphicCards = MessageUtil.stringListToString(SystemUtil.getGraphicCardsName(), " | ");
+
+            for (final Disk disk : disks) {
+                LOGGER.print("&b"+disk.name() + ": &4Testowanie szybkości zapisu pliku&e 100mb 3razy");
+                try {
+                    diskTest.put(disk, testDisk(disk, 100, 3));
+                } catch (final IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+
+            LOGGER.print("&aGOTOWE");
+        } catch (final Exception exception) {
+            exception.printStackTrace();
+        }
 
         LOGGER.println();
         LOGGER.println();
@@ -191,17 +217,15 @@ public final class SystemInfoTest {
             LOGGER.info("&aWolna pamięć:&b " + MathUtil.formatBytesDynamic(SystemUtil.getFreeDiskSpace(diskFile), false));
 
             LOGGER.println();
-            LOGGER.info("&4Testowanie szybkości zapisu pliku&e 100mb 3razy");
-            try {
-                final long time = testDisk(disk, 100, 3);
 
-                if (time > -1) {
-                    LOGGER.info("&aCzas zapisu to:&b " + DateUtil.formatTimeDynamic(time));
-                } else {
-                    LOGGER.error("&cPodnieś poziom uprawnień aby przetestować dysk");
-                }
-            } catch (final IOException ioException) {
-                ioException.printStackTrace();
+            LOGGER.info("&4Test szybkości zapisu pliku&e 100mb 3razy");
+
+            final long time = diskTest.get(disk);
+
+            if (time > -1) {
+                LOGGER.info("&aCzas zapisu to:&b " + DateUtil.formatTimeDynamic(time));
+            } else {
+                LOGGER.error("&cPodnieś poziom uprawnień aby przetestować dysk");
             }
         }
 
