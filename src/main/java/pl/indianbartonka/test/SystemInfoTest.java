@@ -38,6 +38,7 @@ import pl.indianbartonka.util.logger.config.LoggerConfiguration;
 import pl.indianbartonka.util.network.Network;
 import pl.indianbartonka.util.network.NetworkUtil;
 import pl.indianbartonka.util.system.Disk;
+import pl.indianbartonka.util.system.Ram;
 import pl.indianbartonka.util.system.SystemFamily;
 import pl.indianbartonka.util.system.SystemUtil;
 
@@ -229,6 +230,26 @@ public final class SystemInfoTest {
         LOGGER.info("&aDostępne: &b" + MathUtil.formatBytesDynamic(SystemUtil.getMaxSwap() + SystemUtil.getMaxRam(), false));
 
         LOGGER.println();
+        LOGGER.println();
+
+        LOGGER.alert("&4Informacje o kościach Ram");
+
+        final List<Ram> ramList = SystemUtil.getRamData();
+
+        if (ramList.isEmpty()) {
+            LOGGER.alert("&cNiema żadnych danych o kościach ramu");
+        }
+
+        for (final Ram ram : ramList) {
+            LOGGER.info("&aPojemność RAM:&b " + MathUtil.formatBytesDynamic(ram.size(), false));
+            LOGGER.info("&aNominalna prędkość:&b " + ram.basicSpeed() + "&e MHz");
+            LOGGER.info("&aAktualne taktowanie:&b " + ram.configuredSpeed() + "&e MHz");
+            LOGGER.info("&aTyp pamięci:&b " + ram.memoryType());
+            LOGGER.info("&aNumer katalogowy:&b " + ram.partNumber());
+            LOGGER.info("&aSlot pamięci:&b " + ram.bankLabel());
+            LOGGER.println();
+        }
+
         LOGGER.println();
 
         if (!GraphicsEnvironment.isHeadless()) {
