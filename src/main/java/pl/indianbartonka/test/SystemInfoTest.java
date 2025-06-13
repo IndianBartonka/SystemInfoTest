@@ -39,10 +39,10 @@ import pl.indianbartonka.util.logger.Logger;
 import pl.indianbartonka.util.logger.config.LoggerConfiguration;
 import pl.indianbartonka.util.network.Network;
 import pl.indianbartonka.util.network.NetworkUtil;
-import pl.indianbartonka.util.system.Disk;
-import pl.indianbartonka.util.system.Ram;
 import pl.indianbartonka.util.system.SystemFamily;
 import pl.indianbartonka.util.system.SystemUtil;
+import pl.indianbartonka.util.system.parts.Disk;
+import pl.indianbartonka.util.system.parts.Ram;
 
 public final class SystemInfoTest {
 
