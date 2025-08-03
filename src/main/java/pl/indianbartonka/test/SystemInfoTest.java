@@ -7,11 +7,8 @@ import java.awt.GraphicsEnvironment;
 import java.awt.SystemTray;
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
-import java.nio.file.AccessDeniedException;
-import java.nio.file.Files;
 import java.security.Security;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -21,14 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
-import org.jetbrains.annotations.CheckReturnValue;
-import org.jetbrains.annotations.VisibleForTesting;
 import pl.indianbartonka.util.DateUtil;
-import pl.indianbartonka.util.FileUtil;
 import pl.indianbartonka.util.IndianUtils;
 import pl.indianbartonka.util.MathUtil;
-import pl.indianbartonka.util.MemoryUnit;
 import pl.indianbartonka.util.MessageUtil;
 import pl.indianbartonka.util.ThreadUtil;
 import pl.indianbartonka.util.argument.Arg;
@@ -139,7 +131,10 @@ public final class SystemInfoTest {
             for (final Disk disk : disks) {
                 LOGGER.print("&b"+disk.name() + ": &4Testowanie szybkości zapisu pliku&e 100mb 3razy");
                 try {
-                    diskTest.put(disk, testDisk(disk, 100, 3));
+                    //TODO: Usun przy nowej wersij indian utils
+                    if (disk.readOnly()) continue;
+
+                    diskTest.put(disk, SystemUtil.testDisk(disk, 100, 3));
                 } catch (final IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -220,7 +215,7 @@ public final class SystemInfoTest {
 
             LOGGER.info("&4Test szybkości zapisu pliku&e 100mb 3razy");
 
-            final long time = diskTest.get(disk);
+            final long time = diskTest.getOrDefault(disk, -1L);
 
             if (time > -1) {
                 LOGGER.info("&aCzas zapisu to:&b " + DateUtil.formatTimeDynamic(time));
@@ -365,38 +360,5 @@ public final class SystemInfoTest {
             case GraphicsDevice.TYPE_IMAGE_BUFFER -> "Bufor obrazu";
             default -> "Inne";
         };
-    }
-
-    @VisibleForTesting
-    @CheckReturnValue
-    public static long testDisk(final Disk disk, final int mbSize, final int totalWrites) throws IOException {
-        final File fileDir = new File(disk.diskFile(), String.valueOf(UUID.randomUUID()));
-        final File file = new File(fileDir, "testFile.dat");
-
-        try {
-            Files.createDirectories(fileDir.toPath());
-
-            if (!file.createNewFile()) {
-                throw new IOException("Nie można utworzyć pliku testowego z nieznanych przyczyn");
-            }
-
-            final long startTime = System.currentTimeMillis();
-
-            try (final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw")) {
-                final byte[] buffer = new byte[Math.toIntExact(MemoryUnit.MEGABYTES.to(mbSize, MemoryUnit.BYTES))];
-
-                for (int i = 0; i < totalWrites; i++) {
-                    randomAccessFile.write(buffer);
-                    randomAccessFile.getChannel().force(false);
-                }
-            }
-
-            return System.currentTimeMillis() - startTime;
-        } catch (final AccessDeniedException accessDeniedException) {
-            return -1;
-        } finally {
-            if (file.exists()) FileUtil.deleteFile(file);
-            if (fileDir.exists()) FileUtil.deleteFile(fileDir);
-        }
     }
 }
