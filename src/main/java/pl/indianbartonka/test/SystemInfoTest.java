@@ -131,10 +131,7 @@ public final class SystemInfoTest {
             for (final Disk disk : disks) {
                 LOGGER.print("&b"+disk.name() + ": &4Testowanie szybkości zapisu pliku&e 100mb 3razy");
                 try {
-                    //TODO: Usun przy nowej wersij indian utils
-                    if (disk.readOnly()) continue;
-
-                    diskTest.put(disk, SystemUtil.testDisk(disk, 100, 3));
+                  diskTest.put(disk, SystemUtil.testDisk(disk, 100, 3));
                 } catch (final IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -281,7 +278,7 @@ public final class SystemInfoTest {
             for (final GraphicsDevice device : devices) {
                 final DisplayMode displayMode = device.getDisplayMode();
                 final DisplayMode maxMode = Arrays.stream(device.getDisplayModes())
-                        .max(Comparator.comparingInt(mode -> mode.getWidth() * mode.getHeight()))
+                        .max(Comparator.comparingInt(mode -> mode.getWidth() * mode.getHeight() * mode.getRefreshRate()))
                         .orElse(displayMode);
 
                 LOGGER.println();
@@ -291,6 +288,7 @@ public final class SystemInfoTest {
                 LOGGER.info("&aMaksymalna rozdzielczość: &b" + maxMode.getWidth() + "x" + maxMode.getHeight());
                 LOGGER.info("&aGłębia kolorów: &b" + displayMode.getBitDepth() + " &eBitów");
                 LOGGER.info("&aOdświeżanie: &b" + displayMode.getRefreshRate() + " &eHz");
+                LOGGER.info("&aMaksymalne odświeżanie: &b" + maxMode.getRefreshRate() + " &eHz");
                 LOGGER.info("&aLiczba dostępnych trybów: &b" + device.getDisplayModes().length);
 
                 if (!device.isFullScreenSupported()) LOGGER.info("&cPełen ekran nie jest wspierany");
