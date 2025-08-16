@@ -254,6 +254,7 @@ public final class SystemInfoTest {
 
         if (ramList.isEmpty()) {
             LOGGER.alert("&cNiema żadnych danych o kościach ramu");
+            LOGGER.alert("&cAlbo musiśz podnieść poziom uprawnień użytkownika!!!");
         }
 
         for (final Ram ram : ramList) {
