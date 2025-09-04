@@ -199,6 +199,7 @@ public final class SystemInfoTest {
         for (final Disk disk : disks) {
             final File diskFile = disk.diskFile();
             LOGGER.println();
+            LOGGER.info("&aModel dysku:&3 " + disk.model());
             LOGGER.info("&aNazwa: &3" + disk.name());
             LOGGER.info("&aŚcieżka: &3" + diskFile.getAbsolutePath());
             LOGGER.info("&aSystem Plików:&b " + disk.type());
