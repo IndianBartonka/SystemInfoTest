@@ -6,7 +6,6 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.SystemTray;
 import java.io.File;
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.security.Security;
@@ -47,7 +46,8 @@ public final class SystemInfoTest {
     };
 
     private static final List<Disk> disks = SystemUtil.getAvailableDisk();
-    private static final Map<Disk, Long> diskTest = new HashMap<>();
+    private static final List<Ram> ramList = SystemUtil.getRamData();
+    private static final Map<Disk, Double> diskTest = new HashMap<>();
 
     public static void main(final String[] args) {
         final long startTime = System.currentTimeMillis();
@@ -103,7 +103,10 @@ public final class SystemInfoTest {
                         LOGGER.info("&aWykonano &4Swap Test&b " + times + "&a razy");
                     }
 
-                    default -> LOGGER.alert("&4Nieznany argument: &b" + arg);
+                    default -> {
+                        LOGGER.alert("&4Nieznany argument: &b" + arg);
+                        noArgs();
+                    }
                 }
             }
         } else {
@@ -129,11 +132,11 @@ public final class SystemInfoTest {
             graphicCards = MessageUtil.stringListToString(SystemUtil.getGraphicCardsName(), " | ");
 
             for (final Disk disk : disks) {
-                LOGGER.print("&b"+disk.name() + ": &4Testowanie szybkości zapisu pliku&e 100mb 3razy");
+                LOGGER.print("&b" + disk.getName() + "&4 | &b" + disk.getModel() + " &7(&8"+ disk.getType()+"&7)" + ": &4Testowanie szybkości zapisu pliku");
                 try {
-                  diskTest.put(disk, SystemUtil.testDisk(disk, 100, 3));
-                } catch (final IOException ioException) {
-                    ioException.printStackTrace();
+                    diskTest.put(disk, MathUtil.formatDecimal(SystemUtil.testDiskWrite(disk), 3));
+                } catch (final Exception exception) {
+                    exception.printStackTrace();
                 }
             }
 
@@ -193,33 +196,73 @@ public final class SystemInfoTest {
 
         LOGGER.alert("&4Pamięć komputera");
 
-        final List<Disk> disks = SystemUtil.getAvailableDisk();
         LOGGER.info("&aDostępne dyski: &d" + disks.size());
 
+        long freeSSD = 0;
+        long maxSSD = 0;
+        long usedSSD = 0;
+
+        long freeHDD = 0;
+        long maxHDD = 0;
+        long usedHDD = 0;
+
         for (final Disk disk : disks) {
-            final File diskFile = disk.diskFile();
+            final File diskFile = disk.getDiskFile();
+
+            final long max = SystemUtil.getMaxDiskSpace(diskFile);
+            final long free = SystemUtil.getFreeDiskSpace(diskFile);
+            final long used = SystemUtil.getUsedDiskSpace(diskFile);
+
+            switch (disk.getType()) {
+                case "SSD" -> {
+                    maxSSD += max;
+                    freeSSD += free;
+                    usedSSD += used;
+                }
+                case "HDD" -> {
+                    maxHDD += max;
+                    freeHDD += free;
+                    usedHDD += used;
+                }
+            }
+
             LOGGER.println();
-            LOGGER.info("&aModel dysku:&3 " + disk.model());
-            LOGGER.info("&aNazwa: &3" + disk.name());
+            LOGGER.info("&aModel dysku:&3 " + disk.getModel());
+            LOGGER.info("&aNazwa: &3" + disk.getName());
             LOGGER.info("&aŚcieżka: &3" + diskFile.getAbsolutePath());
-            LOGGER.info("&aSystem Plików:&b " + disk.type());
-            LOGGER.info("&aRozmiar bloku:&b " + disk.blockSize());
-            LOGGER.info("&aTylko do odczytu:&b " + disk.readOnly());
-            LOGGER.info("&aCałkowita pamięć:&b " + MathUtil.formatBytesDynamic(SystemUtil.getMaxDiskSpace(diskFile), false));
-            LOGGER.info("&aUżyta pamięć:&b " + MathUtil.formatBytesDynamic(SystemUtil.getUsedDiskSpace(diskFile), false));
-            LOGGER.info("&aWolna pamięć:&b " + MathUtil.formatBytesDynamic(SystemUtil.getFreeDiskSpace(diskFile), false));
+            LOGGER.info("&aSystem Plików:&b " + disk.getFileSystem());
+            LOGGER.info("&aTyp Dysku:&b " + disk.getType());
+            LOGGER.info("&aRozmiar bloku:&b " + disk.getBlockSize());
+            LOGGER.info("&aTylko do odczytu:&b " + disk.isReadOnly());
+            LOGGER.info("&aCałkowita pamięć:&b " + MathUtil.formatBytesDynamic(max, false));
+            LOGGER.info("&aUżyta pamięć:&b " + MathUtil.formatBytesDynamic(used, false));
+            LOGGER.info("&aWolna pamięć:&b " + MathUtil.formatBytesDynamic(free, false));
 
             LOGGER.println();
 
-            LOGGER.info("&4Test szybkości zapisu pliku&e 100mb 3razy");
+            LOGGER.info("&4Test szybkości zapisu pliku");
 
-            final long time = diskTest.getOrDefault(disk, -1L);
+            final Double mbs = diskTest.getOrDefault(disk, -1D);
 
-            if (time > -1) {
-                LOGGER.info("&aCzas zapisu to:&b " + DateUtil.formatTimeDynamic(time));
+            if (mbs > -1) {
+                LOGGER.info("&aCzas zapisu to:&b " + mbs +"&e MB/s");
             } else {
                 LOGGER.error("&cPodnieś poziom uprawnień aby przetestować dysk");
             }
+        }
+
+        LOGGER.println();
+        LOGGER.alert("&4Pamięć Wszystkich Dysków&2 SSD");
+        LOGGER.info("&aCałkowita pamięć:&b " + MathUtil.formatBytesDynamic(maxSSD, false));
+        LOGGER.info("&aUżyta pamięć:&b " + MathUtil.formatBytesDynamic(usedSSD, false));
+        LOGGER.info("&aWolna pamięć:&b " + MathUtil.formatBytesDynamic(freeSSD, false));
+
+        if (maxHDD != 0) {
+            LOGGER.println();
+            LOGGER.alert("&4Pamięć Wszystkich Dysków&f HDD");
+            LOGGER.info("&aCałkowita pamięć:&b " + MathUtil.formatBytesDynamic(maxHDD, false));
+            LOGGER.info("&aUżyta pamięć:&b " + MathUtil.formatBytesDynamic(usedHDD, false));
+            LOGGER.info("&aWolna pamięć:&b " + MathUtil.formatBytesDynamic(freeHDD, false));
         }
 
         LOGGER.println();
@@ -250,8 +293,6 @@ public final class SystemInfoTest {
         LOGGER.println();
 
         LOGGER.alert("&4Informacje o kościach Ram");
-
-        final List<Ram> ramList = SystemUtil.getRamData();
 
         if (ramList.isEmpty()) {
             LOGGER.alert("&cNiema żadnych danych o kościach ramu");
