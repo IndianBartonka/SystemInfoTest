@@ -45,8 +45,8 @@ import pl.indianbartonka.util.system.parts.Ram;
 public final class SystemInfoTest {
 
     private static final LoggerConfiguration LOGGER_CONFIGURATION = LoggerConfiguration.builder()
-            .setLoggingToFile(false)
-            .setOneLog(false)
+            .setLoggingToFile(true)
+            .setOneLog(true)
             .build();
 
     private static final Logger LOGGER = new Logger(LOGGER_CONFIGURATION) {
@@ -475,6 +475,68 @@ public final class SystemInfoTest {
                 .build();
 
         client.sendEmbedMessage(webhookURL, userName, avatarURL, memoryEmbed);
+
+        final List<Field> monitorFields = new ArrayList<>();
+
+        if (!GraphicsEnvironment.isHeadless()) {
+            final GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            final GraphicsDevice[] devices = environment.getScreenDevices();
+
+            monitorFields.add(new Field("Liczba monitorów", "`" + devices.length + "`", false));
+
+            for (final GraphicsDevice device : devices) {
+                final DisplayMode displayMode = device.getDisplayMode();
+                final DisplayMode maxMode = Arrays.stream(device.getDisplayModes())
+                        .max(Comparator.comparingInt(mode -> mode.getWidth() * mode.getHeight() * mode.getRefreshRate()))
+                        .orElse(displayMode);
+
+                final String info =
+                        "**ID:** `" + device.getIDstring() + "`\n" +
+                                "**Typ:** `" + getDeviceType(device) + "`\n" +
+                                "**Rozdzielczość:** `" + displayMode.getWidth() + "`x`" + displayMode.getHeight() + "`\n" +
+                                "**Maks. rozdzielczość:** `" + maxMode.getWidth() + "`x`" + maxMode.getHeight() + "`\n" +
+                                "**Głębia kolorów:** `" + displayMode.getBitDepth() + "` bit\n" +
+                                "**Odświeżanie:** `" + displayMode.getRefreshRate() + "` Hz\n" +
+                                "**Maks. odświeżanie:** `" + maxMode.getRefreshRate() + "` Hz\n" +
+                                "**Tryby:** `" + device.getDisplayModes().length + "`\n" +
+                                "**Pełen ekran:** " + (device.isFullScreenSupported() ? "`Wspierany`" : "`Brak wsparcia`");
+
+                monitorFields.add(new Field(device.getIDstring(), info, false));
+            }
+
+            if (SystemTray.isSupported()) {
+                monitorFields.add(new Field("🪟 SystemTray", "`Wspierany`", true));
+            } else {
+                monitorFields.add(new Field("🪟 SystemTray", "`Nie wspierany`", true));
+            }
+
+            if (Desktop.isDesktopSupported()) {
+                final List<Desktop.Action> supportedActions = new ArrayList<>();
+                for (final Desktop.Action action : Desktop.Action.values()) {
+                    if (Desktop.getDesktop().isSupported(action)) supportedActions.add(action);
+                }
+                monitorFields.add(new Field("💻 Wspierane akcje Desktop",
+                        "`" + MessageUtil.objectListToString(supportedActions, "`, `") + "`", false));
+            } else {
+                monitorFields.add(new Field("💻 Klasa Desktop", "❌ `Nie obsługiwana na tym systemie`", false));
+            }
+
+        } else {
+            monitorFields.add(new Field("⚠️ Tryb headless",
+                    "System działa w trybie headless — informacje o monitorach są niedostępne.", false));
+        }
+
+        final Embed monitorEmbed = new EmbedBuilder()
+                .setTitle("🖥️ Monitory")
+                .setMessage("Monitory")
+                .setTimestamp(Instant.now().toString())
+                .setAuthor(author)
+                .setColor(Color.GREEN)
+                .setFields(monitorFields)
+                .setFooter(footer)
+                .build();
+
+        client.sendEmbedMessage(webhookURL, userName, avatarURL, monitorEmbed);
 
         // ⚙️ INNE INFO
         final List<Field> miscFields = Arrays.asList(
