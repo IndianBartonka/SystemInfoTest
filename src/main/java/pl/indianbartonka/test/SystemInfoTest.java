@@ -24,6 +24,7 @@ import pl.indianbartonka.util.IndianUtils;
 import pl.indianbartonka.util.MathUtil;
 import pl.indianbartonka.util.MessageUtil;
 import pl.indianbartonka.util.ThreadUtil;
+import pl.indianbartonka.util.argument.ArgumentParser;
 import pl.indianbartonka.util.discord.WebHookClient;
 import pl.indianbartonka.util.discord.embed.Embed;
 import pl.indianbartonka.util.discord.embed.EmbedBuilder;
@@ -69,7 +70,7 @@ public final class SystemInfoTest {
     private static final boolean WINE = IndianUtils.wineCheck();
 
     // --- Pamięć ---
-    private static final List<Disk> DISKS = SystemUtil.getAvailableDisk();
+    private static final List<Disk> DISKS = SystemUtil.getAvailableDisks();
     private static final Map<Disk, Double> DISK_TEST = new HashMap<>();
     private static final List<Ram> RAM_LIST = SystemUtil.getRamData();
 
@@ -88,22 +89,38 @@ public final class SystemInfoTest {
     private static final ZoneId ZONE_ID = ZoneId.systemDefault();
 
     public static void main(final String[] args) {
-        noArgs();
-        sendSystemInfoWebhook();
+        final ArgumentParser argumentParser = new ArgumentParser(args);
+
+        start(argumentParser.contains("noDisks"));
+
+        if (!argumentParser.contains("noDiscord")) sendSystemInfoWebhook();
     }
 
-    private static void noArgs() {
+    private static void start(final boolean noDisks) {
         LOGGER.info("&aUżyto Java: &b" + System.getProperty("java.vm.name") + " &1" + System.getProperty("java.runtime.version") + " &5(&d" + System.getProperty("java.vendor") + "&5)&r na&f "
                 + SystemUtil.getFullOSNameWithDistribution() + " &5(&c" + SystemUtil.getFullyArchCode() + "&5)");
 
         try {
-            for (final Disk disk : DISKS) {
-                LOGGER.print("&b" + disk.getName() + "&4 | &b" + disk.getModel() + " &7(&8" + disk.getType() + "&7)" + ": &4Testowanie szybkości zapisu pliku");
-                try {
-                    DISK_TEST.put(disk, MathUtil.formatDecimal(SystemUtil.testDiskWrite(disk), 3));
-                } catch (final Exception exception) {
-                    exception.printStackTrace();
+            if (!noDisks) {
+                final List<Thread> threads = new ArrayList<>();
+
+                for (final Disk disk : DISKS) {
+                    threads.add(new Thread(() -> {
+                        LOGGER.print("&b" + disk.getName() + "&4 | &b" + disk.getModel() + " &7(&8" + disk.getType() + "&7)" + ": &4Testowanie szybkości zapisu pliku");
+                        try {
+                            DISK_TEST.put(disk, MathUtil.formatDecimal(SystemUtil.testDiskWrite(disk), 3));
+                        } catch (final Exception exception) {
+                            exception.printStackTrace();
+                        }
+                    }));
                 }
+
+                threads.forEach(Thread::start);
+
+                for (final Thread thread : threads) {
+                    thread.join();
+                }
+
             }
 
             LOGGER.print("&aGOTOWE");
@@ -274,9 +291,10 @@ public final class SystemInfoTest {
         LOGGER.println();
 
         if (!GraphicsEnvironment.isHeadless()) {
+            final GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+
             LOGGER.alert("&4Monitory");
 
-            final GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
             final GraphicsDevice[] devices = environment.getScreenDevices();
             LOGGER.info("&aDostępne monitory: &b" + devices.length);
 
@@ -324,6 +342,11 @@ public final class SystemInfoTest {
                 LOGGER.println();
                 LOGGER.alert("&cKlasa Desktop nie jest obsługiwana na tym systemie.");
             }
+
+            final List<String> fonts = List.of(environment.getAvailableFontFamilyNames());
+
+            LOGGER.info("&aDostępne czcionki &d(&1" + fonts.size() + "&d):&b " + MessageUtil.stringListToString(fonts, " &a,&b "));
+
         } else {
             LOGGER.alert("&cSystem działa w trybie headless. Niektóre informacje są niedostępne");
         }
