@@ -499,6 +499,34 @@ public final class SystemInfoTest {
 
         client.sendEmbedMessage(webhookURL, userName, avatarURL, memoryEmbed);
 
+        final List<Field> ramStickFields = new ArrayList<>();
+
+        for (final Ram ram : RAM_LIST) {
+            ramStickFields.add(new Field("Pojemność", MathUtil.formatBytesDynamic(ram.size()), true));
+            ramStickFields.add(new Field("Nominalna prędkość", ram.basicSpeed() + "MHz", true));
+            ramStickFields.add(new Field("Aktualne taktowanie", ram.configuredSpeed() + "MHz", true));
+            ramStickFields.add(new Field("Typ pamięci", ram.memoryType(), true));
+
+            ramStickFields.add(new Field("Numer katalogowy", ram.partNumber(), true));
+            ramStickFields.add(new Field("Slot pamięci", ram.bankLabel(), true));
+            ramStickFields.add(new Field("", "", false));
+            ramStickFields.add(new Field("", "", false));
+        }
+
+        final Embed ramStickEmbed = new EmbedBuilder()
+                .setTitle("🧠 Kości Ram")
+                .setMessage("Szczegóły o kościach pamięci ram")
+                .setTimestamp(Instant.now().toString())
+                .setAuthor(author)
+                .setColor(Color.GREEN)
+                .setFields(ramStickFields)
+                .setFooter(footer)
+                .build();
+
+        if (!RAM_LIST.isEmpty()) {
+            client.sendEmbedMessage(webhookURL, userName, avatarURL, ramStickEmbed);
+        }
+
         final List<Field> monitorFields = new ArrayList<>();
 
         if (!GraphicsEnvironment.isHeadless()) {
@@ -543,6 +571,10 @@ public final class SystemInfoTest {
             } else {
                 monitorFields.add(new Field("💻 Klasa Desktop", "❌ `Nie obsługiwana na tym systemie`", false));
             }
+
+            final List<String> fonts = List.of(environment.getAvailableFontFamilyNames());
+
+            monitorFields.add(new Field("📝 Dostępne czcionki (" + fonts.size() + ")", "`" + MessageUtil.objectListToString(fonts.stream().limit(10).toList(), "`, `") + "` i więcej", false));
 
         } else {
             monitorFields.add(new Field("⚠️ Tryb headless",
