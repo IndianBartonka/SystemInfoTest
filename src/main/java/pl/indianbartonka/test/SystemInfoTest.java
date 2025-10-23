@@ -617,6 +617,8 @@ public final class SystemInfoTest {
         client.sendEmbedMessage(webhookURL, userName, avatarURL, miscEmbed);
 
         client.shutdown();
+
+        //TODO: Dodaj info o wersji jvm i spróbuj dodać wysyłanie pliku w webhooku 
     }
 
 
