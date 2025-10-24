@@ -380,11 +380,12 @@ public final class SystemInfoTest {
     }
 
     public static void sendSystemInfoWebhook() {
-        final WebHookClient client = new WebHookClient(LOGGER, false);
         final String userName = "Tescior";
         final String avatarURL = "https://th.bing.com/th/id/OIP.f3tTSSqVRSktMK8uFBqlJQHaIi?w=148&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7";
         //I don't care :)
         final String webhookURL = "https://discord.com/api/webhooks/1421525249211633795/y_jH5UC9wxFKZn6NfDjHGOnQCoVMOPdk83fpgULdomHhYZ-EL6wHkxc3L38JUU53IOad";
+
+        final WebHookClient client = new WebHookClient(LOGGER, false, webhookURL, userName, avatarURL);
 
         final Author author = new Author("IndianBartonka.pl", "https://indianbartonka.pl/", "https://indianbartonka.pl/img/favicon.jpg");
         final Footer footer = new Footer("Dane systemowe", "https://th.bing.com/th/id/OIP.V4QmXbKfBya0XHTzLMuhCAHaE8?rs=1&pid=ImgDetMain");
@@ -411,7 +412,7 @@ public final class SystemInfoTest {
                 .setFooter(footer)
                 .build();
 
-        client.sendEmbedMessage(webhookURL, userName, avatarURL, systemEmbed);
+        client.sendEmbedMessage(systemEmbed);
 
         // 💾 DYSKI
 
@@ -475,7 +476,7 @@ public final class SystemInfoTest {
                 .setFooter(footer)
                 .build();
 
-        client.sendEmbedMessage(webhookURL, userName, avatarURL, diskEmbed);
+        client.sendEmbedMessage(diskEmbed);
 
         // 🧠 RAM + SWAP
         final List<Field> memoryFields = Arrays.asList(
@@ -497,7 +498,7 @@ public final class SystemInfoTest {
                 .setFooter(footer)
                 .build();
 
-        client.sendEmbedMessage(webhookURL, userName, avatarURL, memoryEmbed);
+        client.sendEmbedMessage(memoryEmbed);
 
         final List<Field> ramStickFields = new ArrayList<>();
 
@@ -524,7 +525,7 @@ public final class SystemInfoTest {
                 .build();
 
         if (!RAM_LIST.isEmpty()) {
-            client.sendEmbedMessage(webhookURL, userName, avatarURL, ramStickEmbed);
+            client.sendEmbedMessage(ramStickEmbed);
         }
 
         final List<Field> monitorFields = new ArrayList<>();
@@ -591,7 +592,7 @@ public final class SystemInfoTest {
                 .setFooter(footer)
                 .build();
 
-        client.sendEmbedMessage(webhookURL, userName, avatarURL, monitorEmbed);
+        client.sendEmbedMessage(monitorEmbed);
 
         // ⚙️ INNE INFO
         final List<Field> miscFields = Arrays.asList(
@@ -614,7 +615,7 @@ public final class SystemInfoTest {
                 .setFooter(footer)
                 .build();
 
-        client.sendEmbedMessage(webhookURL, userName, avatarURL, miscEmbed);
+        client.sendEmbedMessage(miscEmbed);
 
         client.shutdown();
 
